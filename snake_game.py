@@ -1,32 +1,40 @@
 import pygame
 import random
+import neat
+import os
+from math import atan
 from pygame.locals import *
 
 pygame.init()
-WIN_X = 600
-WIN_Y = 600
+WIN_X = 800
+WIN_Y = 800
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
 pygame.display.set_caption('Snake')
 
 
 class Snake:
-    def __init__(self):
-        self.speed = 10
+    def __init__(self, block_size):
+        self.direction = 'right'
+        self.speed = block_size
         self.head = [200, 200]
         self.body = [self.head, [190, 200], [180, 200]]
 
     def left(self):
-        self.head[0] -= self.speed
+        if self.direction != 'right':
+            self.head[0] -= self.speed
 
     def right(self):
-        self.head[0] += self.speed
+        if self.direction != 'left':
+            self.head[0] += self.speed
 
     def up(self):
-        self.head[1] -= self.speed
+        if self.direction != 'down':
+            self.head[1] -= self.speed
 
     def down(self):
-        self.head[1] += self.speed
+        if self.direction != 'up':
+            self.head[1] += self.speed
 
     def collide(self):
         colision_count = 0
@@ -42,20 +50,28 @@ class Snake:
 
 
 class Apple:
-    def __init__(self):
-        self.x = random.randrange(0, 600, 10)
-        self.y = random.randrange(0, 600, 10)
+    def __init__(self, block_size):
+        self.x = random.randrange(0, 600, block_size)
+        self.y = random.randrange(0, 600, block_size)
+
+
+def draw_grid(block_size):
+    # Set the size of the grid block
+    for x in range(0, WIN_X, block_size):
+        for y in range(0, WIN_Y, block_size):
+            rect = pygame.Rect(x, y, block_size, block_size)
+            pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 
 
 def main():
+    block_size = 40
     clock = pygame.time.Clock()
-    snake = Snake()
-    direction = 'right'
+    snake = Snake(block_size)
     apple_present = False
 
     while True:
         if not apple_present:
-            apple = Apple()
+            apple = Apple(block_size)
             apple_present = True
 
         for event in pygame.event.get():
@@ -65,20 +81,21 @@ def main():
 
             # Controls (not needed when AI is implemented)
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    direction = 'left'
-                if event.key == pygame.K_RIGHT:
-                    direction = 'right'
-                if event.key == pygame.K_UP:
-                    direction = 'up'
-                if event.key == pygame.K_DOWN:
-                    direction = 'down'
+                if event.key == pygame.K_LEFT and snake.direction != 'right':
+                    snake.direction = 'left'
+                if event.key == pygame.K_RIGHT and snake.direction != 'left':
+                    snake.direction = 'right'
+                if event.key == pygame.K_UP and snake.direction != 'down':
+                    snake.direction = 'up'
+                if event.key == pygame.K_DOWN and snake.direction != 'up':
+                    snake.direction = 'down'
 
         screen.fill((0, 0, 0))
+        draw_grid(block_size)
 
         # Draw the apple
         if apple_present:
-            pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, 10, 10))
+            pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
 
         # Detect collision
         if snake.collide():
@@ -87,16 +104,19 @@ def main():
 
         # Draw snake's body
         for square in snake.body:
-            pygame.draw.rect(screen, (255, 255, 255), (square[0], square[1], 10, 10))
+            if square == snake.head:
+                pygame.draw.rect(screen, (0, 255, 0), (square[0], square[1], block_size, block_size))
+            else:
+                pygame.draw.rect(screen, (255, 255, 0), (square[0], square[1], block_size, block_size))
 
-        # Movement
-        if direction == 'left':
+        # Movement(not needed when AI is implemented)
+        if snake.direction == 'left':
             snake.left()
-        elif direction == 'right':
+        elif snake.direction == 'right':
             snake.right()
-        elif direction == 'up':
+        elif snake.direction == 'up':
             snake.up()
-        elif direction == 'down':
+        elif snake.direction == 'down':
             snake.down()
         snake.body.append(list(snake.head))
         # Eat apple
@@ -106,10 +126,10 @@ def main():
         else:
             snake.body.pop(0)
 
-        text = STAT_FONT.render('Score: ' + str(len(snake.body) - 3), 1, (255, 255, 255))
-        screen.blit(text, (WIN_X - 10 - text.get_width(), 10))
+        text = STAT_FONT.render('Score: ' + str(len(snake.body) - 3), 1, (255, 255, 0))
+        screen.blit(text, (10, 10))
 
         pygame.display.update()
-        clock.tick(25)
+        clock.tick(20)
 
 main()
