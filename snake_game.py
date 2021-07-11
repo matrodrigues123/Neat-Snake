@@ -84,6 +84,7 @@ def eval_genomes(genomes, config):
     while True:
         
         if not apple_present:
+            
             apple = Apple(block_size)
             apple_present = True
 
@@ -114,7 +115,7 @@ def eval_genomes(genomes, config):
             t1=time.time()
         # Detect collision
             if snake.collide():
-                ge[i].fitness-=1
+                ge[i].fitness-=5
                 snakes.pop(i)
                 nets.pop(i)
                 ge.pop(i)
@@ -154,12 +155,15 @@ def eval_genomes(genomes, config):
         # Eat apple
             if snake.head == [apple.x, apple.y]:
                 apple_present = False
-                ge[i].fitness+=2
+                ge[i].fitness+=5
                 del apple
             else:
                 # if doesn't finds the apple, gets negative reward
                 ge[i].fitness-=0.1
-                # snake.body.pop(0)
+                if snake.body!=[]:
+                    pass
+                    # snake.body.pop(0)
+
 
             if len(snakes)==0:
                 break
