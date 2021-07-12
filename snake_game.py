@@ -49,26 +49,6 @@ class Snake:
         self.direction = self.clock_wise[new_idx]
         self.move()
 
-    # def left(self):
-    #     if self.direction != 'right':
-    #         self.head[0] -= self.speed
-    #         self.direction = 'left'
-    #
-    # def right(self):
-    #     if self.direction != 'left':
-    #         self.head[0] += self.speed
-    #         self.direction = 'right'
-    #
-    # def up(self):
-    #     if self.direction != 'down':
-    #         self.head[1] -= self.speed
-    #         self.direction = 'up'
-    #
-    # def down(self):
-    #     if self.direction != 'up':
-    #         self.head[1] += self.speed
-    #         self.direction = 'down'
-
     def collide(self):
         colision_count = 0
         for square in self.body:
@@ -113,7 +93,6 @@ def main(genomes, config):
     global HIGH_SCORE
     block_size = 40
     clock = pygame.time.Clock()
-    apple_present = False
 
     for _, g in genomes:
         g.fitness = 0
@@ -124,10 +103,6 @@ def main(genomes, config):
         ge.append(g)
 
     while True:
-        # if not apple_present:
-        #     apple = Apple(block_size)
-        #     apple_present = True
-
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -136,9 +111,6 @@ def main(genomes, config):
         screen.fill((0, 0, 0))
         draw_grid(block_size)
 
-        # Draw the apple
-        # if apple_present:
-        #     pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
         # Loop through snakes
         for i, snake in enumerate(snakes):
             # Draw snake's body
@@ -153,8 +125,6 @@ def main(genomes, config):
             # Eat apple
             if snake.head == [apples[i].x, apples[i].y]:
                 ge[i].fitness += 5
-                # del apple
-                # apple = Apple(block_size)
                 apples[i] = Apple(block_size)
             else:
                 snake.body.pop(0)
