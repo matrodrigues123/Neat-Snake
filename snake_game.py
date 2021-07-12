@@ -19,7 +19,7 @@ class Snake:
     def __init__(self, block_size):
         self.direction = 'right'
         self.clock_wise = ['right', 'down', 'left', 'up']
-        self.idx = self.clock_wise.index(self.direction)
+        self.idx = 0
         self.speed = block_size
         self.head = [200, 200]
         self.body = [self.head, [190, 200], [180, 200]]
@@ -84,8 +84,8 @@ class Snake:
 
 class Apple:
     def __init__(self, block_size):
-        self.x = random.randrange(0, 800, block_size)
-        self.y = random.randrange(0, 800, block_size)
+        self.x = random.randrange(0, WIN_X, block_size)
+        self.y = random.randrange(0, WIN_Y, block_size)
 
 
 def draw_grid(block_size):
@@ -108,6 +108,7 @@ def main(genomes, config):
     nets = []
     ge = []
     snakes = []
+    apples = []
 
     global HIGH_SCORE
     block_size = 40
@@ -119,12 +120,13 @@ def main(genomes, config):
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
         snakes.append(Snake(block_size))
+        apples.append(Apple(block_size))
         ge.append(g)
 
     while True:
-        if not apple_present:
-            apple = Apple(block_size)
-            apple_present = True
+        # if not apple_present:
+        #     apple = Apple(block_size)
+        #     apple_present = True
 
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -135,8 +137,8 @@ def main(genomes, config):
         draw_grid(block_size)
 
         # Draw the apple
-        if apple_present:
-            pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
+        # if apple_present:
+        #     pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
         # Loop through snakes
         for i, snake in enumerate(snakes):
             # Draw snake's body
@@ -145,12 +147,15 @@ def main(genomes, config):
                     pygame.draw.rect(screen, (0, 255, 0), (square[0], square[1], block_size, block_size))
                 else:
                     pygame.draw.rect(screen, (255, 255, 0), (square[0], square[1], block_size, block_size))
+            # Draw apple
+            pygame.draw.rect(screen, (255, 0, 0), (apples[i].x, apples[i].y, block_size, block_size))
 
             # Eat apple
-            if snake.head == [apple.x, apple.y]:
+            if snake.head == [apples[i].x, apples[i].y]:
                 ge[i].fitness += 5
-                del apple
-                apple = Apple(block_size)
+                # del apple
+                # apple = Apple(block_size)
+                apples[i] = Apple(block_size)
             else:
                 snake.body.pop(0)
             HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
@@ -161,10 +166,11 @@ def main(genomes, config):
                 snakes.pop(i)
                 nets.pop(i)
                 ge.pop(i)
+                apples.pop(i)
 
         # Give the outputs to the NN
         for i, snake in enumerate(snakes):
-            output = nets[i].activate(get_data(snake, apple))
+            output = nets[i].activate(get_data(snake, apples[i]))
             if output[0] > 0.5:
                 snake.straight()
             elif output[1] > 0.5:
@@ -176,6 +182,8 @@ def main(genomes, config):
             break
         text = STAT_FONT.render(f'Highest Score:{HIGH_SCORE} ', 1, (255, 255, 0))
         screen.blit(text, (10, 10))
+        text = STAT_FONT.render(f'Living snakes:{len(snakes)} ', 1, (255, 255, 0))
+        screen.blit(text, (10, 50))
 
         pygame.display.update()
         clock.tick(20)
