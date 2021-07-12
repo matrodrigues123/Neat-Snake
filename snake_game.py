@@ -8,6 +8,7 @@ from pygame.locals import *
 pygame.init()
 WIN_X = 800
 WIN_Y = 800
+HIGH_SCORE = 0
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
 pygame.display.set_caption('Snake')
@@ -80,6 +81,7 @@ def main(genomes, config):
     ge = []
     snakes = []
 
+    global HIGH_SCORE
     block_size = 40
     clock = pygame.time.Clock()
     apple_present = False
@@ -109,7 +111,6 @@ def main(genomes, config):
             pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
         # Loop through snakes
         for i, snake in enumerate(snakes):
-            print(i)
             # Draw snake's body
             for square in snake.body:
                 if square == snake.head:
@@ -119,11 +120,12 @@ def main(genomes, config):
 
             # Eat apple
             if snake.head == [apple.x, apple.y]:
-                ge[i].fitness += 15
+                ge[i].fitness += 5
                 del apple
                 apple = Apple(block_size)
             else:
                 snake.body.pop(0)
+            HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
 
             # Collision
             if snake.collide():
@@ -146,8 +148,8 @@ def main(genomes, config):
             snake.body.append(list(snake.head))
         if len(snakes) == 0:
             break
-        # text = STAT_FONT.render('Score: ' + str(len(snake.body) - 3), 1, (255, 255, 0))
-        # screen.blit(text, (10, 10))
+        text = STAT_FONT.render(f'Highest Score:{HIGH_SCORE} ', 1, (255, 255, 0))
+        screen.blit(text, (10, 10))
 
         pygame.display.update()
         clock.tick(20)
