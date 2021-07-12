@@ -38,11 +38,13 @@ class Snake:
         self.move()
 
     def right(self):
+        self.idx = self.clock_wise.index(self.direction)
         new_idx = (self.idx + 1) % 4
         self.direction = self.clock_wise[new_idx]
         self.move()
 
     def left(self):
+        self.idx = self.clock_wise.index(self.direction)
         new_idx = (self.idx - 1) % 4
         self.direction = self.clock_wise[new_idx]
         self.move()
