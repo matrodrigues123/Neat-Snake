@@ -1,7 +1,6 @@
 import pygame
 import random
 import neat
-import numpy as np
 import os
 from math import atan
 from pygame.locals import *
@@ -20,6 +19,7 @@ class Snake:
         self.direction = 'right'
         self.clock_wise = ['right', 'down', 'left', 'up']
         self.idx = 0
+        self.move_count = 0
         self.speed = block_size
         self.head = [200, 200]
         self.body = [self.head, [190, 200], [180, 200]]
@@ -124,14 +124,16 @@ def main(genomes, config):
 
             # Eat apple
             if snake.head == [apples[i].x, apples[i].y]:
-                ge[i].fitness += 5
+                ge[i].fitness += 20
+                snake.move_count = 0
                 apples[i] = Apple(block_size)
             else:
                 snake.body.pop(0)
-            HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
+                if pygame.time.get_ticks() % 1000 == 0:
+                    ge[i].fitness -= 1
 
             # Collision
-            if snake.collide():
+            if snake.collide() or snake.move_count >= 100:
                 ge[i].fitness -= 10
                 snakes.pop(i)
                 nets.pop(i)
@@ -148,13 +150,14 @@ def main(genomes, config):
             elif output[2] > 0.5:
                 snake.left()
             snake.body.append(list(snake.head))
+            snake.move_count += 1
+            HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
         if len(snakes) == 0:
             break
         text = STAT_FONT.render(f'Highest Score:{HIGH_SCORE} ', 1, (255, 255, 0))
         screen.blit(text, (10, 10))
         text = STAT_FONT.render(f'Living snakes:{len(snakes)} ', 1, (255, 255, 0))
         screen.blit(text, (10, 50))
-
         pygame.display.update()
         clock.tick(20)
 
