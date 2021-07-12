@@ -23,18 +23,22 @@ class Snake:
     def left(self):
         if self.direction != 'right':
             self.head[0] -= self.speed
+            self.direction = 'left'
 
     def right(self):
         if self.direction != 'left':
             self.head[0] += self.speed
+            self.direction = 'right'
 
     def up(self):
         if self.direction != 'down':
             self.head[1] -= self.speed
+            self.direction = 'up'
 
     def down(self):
         if self.direction != 'up':
             self.head[1] += self.speed
+            self.direction = 'down'
 
     def collide(self):
         colision_count = 0
@@ -63,11 +67,29 @@ def draw_grid(block_size):
             pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 
 
-def main():
+def get_data(snake, apple):
+    if snake.head[1] != apple.y:
+        angle = atan((snake.head[0] - apple.x) / (snake.head[1] - apple.y))
+    else:
+        angle = 0
+    return snake.head[0], snake.head[1], angle
+
+
+def main(genomes, config):
+    nets = []
+    ge = []
+    snakes = []
+
     block_size = 40
     clock = pygame.time.Clock()
-    snake = Snake(block_size)
     apple_present = False
+
+    for _, g in genomes:
+        g.fitness = 0
+        net = neat.nn.FeedForwardNetwork.create(g, config)
+        nets.append(net)
+        snakes.append(Snake(block_size))
+        ge.append(g)
 
     while True:
         if not apple_present:
@@ -79,17 +101,6 @@ def main():
                 pygame.quit()
                 exit()
 
-            # Controls (not needed when AI is implemented)
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT and snake.direction != 'right':
-                    snake.direction = 'left'
-                if event.key == pygame.K_RIGHT and snake.direction != 'left':
-                    snake.direction = 'right'
-                if event.key == pygame.K_UP and snake.direction != 'down':
-                    snake.direction = 'up'
-                if event.key == pygame.K_DOWN and snake.direction != 'up':
-                    snake.direction = 'down'
-
         screen.fill((0, 0, 0))
         draw_grid(block_size)
 
@@ -98,38 +109,57 @@ def main():
             pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
 
         # Detect collision
-        if snake.collide():
-            pygame.quit()
-            exit()
+        for i, snake in enumerate(snakes):
+            # Draw snake's body
+            for square in snake.body:
+                if square == snake.head:
+                    pygame.draw.rect(screen, (0, 255, 0), (square[0], square[1], block_size, block_size))
+                else:
+                    pygame.draw.rect(screen, (255, 255, 0), (square[0], square[1], block_size, block_size))
 
-        # Draw snake's body
-        for square in snake.body:
-            if square == snake.head:
-                pygame.draw.rect(screen, (0, 255, 0), (square[0], square[1], block_size, block_size))
+            # Eat apple
+            if snake.head == [apple.x, apple.y]:
+                ge[i].fitness += 5
+                del apple
+                apple = Apple(block_size)
             else:
-                pygame.draw.rect(screen, (255, 255, 0), (square[0], square[1], block_size, block_size))
+                snake.body.pop(0)
 
-        # Movement(not needed when AI is implemented)
-        if snake.direction == 'left':
-            snake.left()
-        elif snake.direction == 'right':
-            snake.right()
-        elif snake.direction == 'up':
-            snake.up()
-        elif snake.direction == 'down':
-            snake.down()
-        snake.body.append(list(snake.head))
-        # Eat apple
-        if snake.head == [apple.x, apple.y]:
-            apple_present = False
-            del apple
-        else:
-            snake.body.pop(0)
+            # Collision
+            if snake.collide():
+                ge[i].fitness -= 10
+                snakes.pop(i)
+                nets.pop(i)
+                ge.pop(i)
 
-        text = STAT_FONT.render('Score: ' + str(len(snake.body) - 3), 1, (255, 255, 0))
-        screen.blit(text, (10, 10))
+            output = nets[i].activate(get_data(snake, apple))
+            if output[0] > 0.5 and snake.direction != 'right':
+                snake.left()
+            elif output[1] > 0.5 and snake.direction != 'left':
+                snake.right()
+            elif output[2] > 0.5 and snake.direction != 'down':
+                snake.up()
+            elif output[3] > 0.5 and snake.direction != 'up':
+                snake.down()
+            snake.body.append(list(snake.head))
+
+        # text = STAT_FONT.render('Score: ' + str(len(snake.body) - 3), 1, (255, 255, 0))
+        # screen.blit(text, (10, 10))
 
         pygame.display.update()
         clock.tick(20)
 
-main()
+
+def run(config_path):
+    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
+    p = neat.Population(config)
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+    p.run(main, 50)
+
+
+if __name__ == '__main__':
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, 'config-feedforward.txt')
+    run(config_path)
