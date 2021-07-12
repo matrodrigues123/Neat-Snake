@@ -1,3 +1,4 @@
+import math
 import pygame
 import random
 import neat
@@ -6,8 +7,8 @@ from math import atan
 from pygame.locals import *
 
 pygame.init()
-WIN_X = 800
-WIN_Y = 800
+WIN_X = 600
+WIN_Y = 600
 HIGH_SCORE = 0
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
@@ -20,6 +21,7 @@ class Snake:
         self.speed = block_size
         self.head = [200, 200]
         self.body = [self.head, [190, 200], [180, 200]]
+        self.time=0
 
     def left(self):
         if self.direction != 'right':
@@ -73,7 +75,7 @@ def get_data(snake, apple):
         angle = atan((snake.head[0] - apple.x) / (snake.head[1] - apple.y))
     else:
         angle = 0
-    return snake.head[0], snake.head[1], angle
+    return (snake.head[0]-apple.x),(snake.head[1]-apple.y), angle
 
 
 def main(genomes, config):
@@ -82,7 +84,7 @@ def main(genomes, config):
     snakes = []
 
     global HIGH_SCORE
-    block_size = 40
+    block_size = 20
     clock = pygame.time.Clock()
     apple_present = False
 
@@ -111,6 +113,7 @@ def main(genomes, config):
             pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
         # Loop through snakes
         for i, snake in enumerate(snakes):
+            ge[i].fitness-=10
             # Draw snake's body
             for square in snake.body:
                 if square == snake.head:
@@ -120,16 +123,18 @@ def main(genomes, config):
 
             # Eat apple
             if snake.head == [apple.x, apple.y]:
-                ge[i].fitness += 5
+                ge[i].fitness += 10
+                snake.time=0
                 del apple
                 apple = Apple(block_size)
             else:
+                snake.time+=10
                 snake.body.pop(0)
             HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
 
             # Collision
             if snake.collide():
-                ge[i].fitness -= 10
+                ge[i].fitness -= 1000
                 snakes.pop(i)
                 nets.pop(i)
                 ge.pop(i)
