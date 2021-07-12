@@ -107,9 +107,9 @@ def main(genomes, config):
         # Draw the apple
         if apple_present:
             pygame.draw.rect(screen, (255, 0, 0), (apple.x, apple.y, block_size, block_size))
-
-        # Detect collision
+        # Loop through snakes
         for i, snake in enumerate(snakes):
+            print(i)
             # Draw snake's body
             for square in snake.body:
                 if square == snake.head:
@@ -119,7 +119,7 @@ def main(genomes, config):
 
             # Eat apple
             if snake.head == [apple.x, apple.y]:
-                ge[i].fitness += 5
+                ge[i].fitness += 15
                 del apple
                 apple = Apple(block_size)
             else:
@@ -132,6 +132,8 @@ def main(genomes, config):
                 nets.pop(i)
                 ge.pop(i)
 
+        # Give the outputs to the NN
+        for i, snake in enumerate(snakes):
             output = nets[i].activate(get_data(snake, apple))
             if output[0] > 0.5 and snake.direction != 'right':
                 snake.left()
@@ -142,7 +144,8 @@ def main(genomes, config):
             elif output[3] > 0.5 and snake.direction != 'up':
                 snake.down()
             snake.body.append(list(snake.head))
-
+        if len(snakes) == 0:
+            break
         # text = STAT_FONT.render('Score: ' + str(len(snake.body) - 3), 1, (255, 255, 0))
         # screen.blit(text, (10, 10))
 
