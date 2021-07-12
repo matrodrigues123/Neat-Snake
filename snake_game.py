@@ -24,30 +24,49 @@ class Snake:
         self.head = [200, 200]
         self.body = [self.head, [190, 200], [180, 200]]
 
-    def move(self):
-        if self.direction == 'right':
-            self.head[0] += self.speed
-        elif self.direction == 'left':
+    # def move(self):
+    #     if self.direction == 'right':
+    #         self.head[0] += self.speed
+    #     elif self.direction == 'left':
+    #         self.head[0] -= self.speed
+    #     elif self.direction == 'down':
+    #         self.head[1] += self.speed
+    #     elif self.direction == 'up':
+    #         self.head[1] -= self.speed
+    #
+    # def straight(self):
+    #     self.move()
+    #
+    # def right(self):
+    #     self.idx = self.clock_wise.index(self.direction)
+    #     new_idx = (self.idx + 1) % 4
+    #     self.direction = self.clock_wise[new_idx]
+    #     self.move()
+    #
+    # def left(self):
+    #     self.idx = self.clock_wise.index(self.direction)
+    #     new_idx = (self.idx - 1) % 4
+    #     self.direction = self.clock_wise[new_idx]
+    #     self.move()
+    def left(self):
+        if self.direction != 'right':
             self.head[0] -= self.speed
-        elif self.direction == 'down':
-            self.head[1] += self.speed
-        elif self.direction == 'up':
-            self.head[1] -= self.speed
-
-    def straight(self):
-        self.move()
+            self.direction = 'left'
 
     def right(self):
-        self.idx = self.clock_wise.index(self.direction)
-        new_idx = (self.idx + 1) % 4
-        self.direction = self.clock_wise[new_idx]
-        self.move()
+        if self.direction != 'left':
+            self.head[0] += self.speed
+            self.direction = 'right'
 
-    def left(self):
-        self.idx = self.clock_wise.index(self.direction)
-        new_idx = (self.idx - 1) % 4
-        self.direction = self.clock_wise[new_idx]
-        self.move()
+    def up(self):
+        if self.direction != 'down':
+            self.head[1] -= self.speed
+            self.direction = 'up'
+
+    def down(self):
+        if self.direction != 'up':
+            self.head[1] += self.speed
+            self.direction = 'down'
 
     def collide(self):
         colision_count = 0
