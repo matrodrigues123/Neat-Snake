@@ -27,11 +27,11 @@ class Snake:
     def move(self):
         if self.direction == 'right':
             self.head[0] += self.speed
-        if self.direction == 'left':
+        elif self.direction == 'left':
             self.head[0] -= self.speed
-        if self.direction == 'down':
+        elif self.direction == 'down':
             self.head[1] += self.speed
-        if self.direction == 'up':
+        elif self.direction == 'up':
             self.head[1] -= self.speed
 
     def straight(self):
