@@ -162,12 +162,20 @@ def main(genomes, config):
         # Give the outputs to the NN
         for i, snake in enumerate(snakes):
             output = nets[i].activate(get_data(snake, apples[i]))
-            if output[0] > 0.5:
-                snake.straight()
-            elif output[1] > 0.5:
-                snake.right()
-            elif output[2] > 0.5:
+            # if output[0] > 0.5:
+            #     snake.straight()
+            # elif output[1] > 0.5:
+            #     snake.right()
+            # elif output[2] > 0.5:
+            #     snake.left()
+            if output[0] > 0.5 and snake.direction != 'right':
                 snake.left()
+            elif output[1] > 0.5 and snake.direction != 'left':
+                snake.right()
+            elif output[2] > 0.5 and snake.direction != 'down':
+                snake.up()
+            elif output[3] > 0.5 and snake.direction != 'up':
+                snake.down()
             snake.body.append(list(snake.head))
             snake.move_count += 1
             HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
