@@ -22,13 +22,13 @@ BLUE2 = (0, 100, 255)
 RED1 = (219, 75, 59)
 RED2 = (252, 137, 121)
 GREEN = (162, 232, 58)
+BLACK = (0, 0, 0)
 
 
 class Snake:
     def __init__(self, block_size):
         self.direction = 'right'
         self.clock_wise = ['right', 'down', 'left', 'up']
-        self.idx = 0
         self.move_count = 0
         self.speed = block_size
         self.head = [200, 200]
@@ -48,35 +48,32 @@ class Snake:
     #     self.move()
     #
     # def right(self):
-    #     self.idx = self.clock_wise.index(self.direction)
-    #     new_idx = (self.idx + 1) % 4
+    #     idx = self.clock_wise.index(self.direction)
+    #     new_idx = (idx + 1) % 4
     #     self.direction = self.clock_wise[new_idx]
     #     self.move()
     #
     # def left(self):
-    #     self.idx = self.clock_wise.index(self.direction)
-    #     new_idx = (self.idx - 1) % 4
+    #     idx = self.clock_wise.index(self.direction)
+    #     new_idx = (idx - 1) % 4
     #     self.direction = self.clock_wise[new_idx]
     #     self.move()
+
     def left(self):
-        if self.direction != 'right':
-            self.head[0] -= self.speed
-            self.direction = 'left'
+        self.head[0] -= self.speed
+        self.direction = 'left'
 
     def right(self):
-        if self.direction != 'left':
-            self.head[0] += self.speed
-            self.direction = 'right'
+        self.head[0] += self.speed
+        self.direction = 'right'
 
     def up(self):
-        if self.direction != 'down':
-            self.head[1] -= self.speed
-            self.direction = 'up'
+        self.head[1] -= self.speed
+        self.direction = 'up'
 
     def down(self):
-        if self.direction != 'up':
-            self.head[1] += self.speed
-            self.direction = 'down'
+        self.head[1] += self.speed
+        self.direction = 'down'
 
     def collide(self):
         colision_count = 0
@@ -105,15 +102,46 @@ def draw_grid(block_size):
             pygame.draw.rect(screen, (200, 200, 200), rect, 1)
 
 
-def get_data(snake, apple):
+def get_data(snake, apple, block_size):
+    # Angle between snake head and apple
     if snake.head[1] != apple.y:
         angle = atan((snake.head[0] - apple.x) / (snake.head[1] - apple.y))
     else:
         angle = 0
 
-    # [up, right, down, left]
+    # Check if there is danger in direction [up, right, down, left]
+    def is_danger(pos):
+        if pos in snake.body or not 0 <= pos <= WIN_X or not 0 <= pos < WIN_Y:
+            return True
+        else:
+            return False
+
     danger = [0, 0, 0, 0]
-    return (snake.head[0] - apple.x), (snake.head[1] - apple.y), angle
+    up = snake.head[1] - block_size
+    if is_danger(up):
+        danger[0] = 1
+    else:
+        danger[0] = 0
+
+    right = snake.head[0] + block_size
+    if is_danger(right):
+        danger[1] = 1
+    else:
+        danger[1] = 0
+
+    down = snake.head[1] + block_size
+    if is_danger(down):
+        danger[2] = 1
+    else:
+        danger[2] = 0
+
+    left = snake.head[0] - block_size
+    if is_danger(left):
+        danger[3] = 1
+    else:
+        danger[3] = 0
+
+    return (snake.head[0] - apple.x, snake.head[1] - apple.y, angle) + tuple(danger)
 
 
 def main(genomes, config):
@@ -140,7 +168,7 @@ def main(genomes, config):
                 pygame.quit()
                 exit()
 
-        screen.fill((0, 0, 0))
+        screen.fill(BLACK)
         # draw_grid(block_size)
 
         # Loop through snakes
@@ -166,7 +194,7 @@ def main(genomes, config):
                 snake.body.pop(0)
 
             # Collision
-            if snake.collide() or snake.move_count >= 100:
+            if snake.collide() or snake.move_count >= 120:
                 ge[i].fitness -= (10 + snake.move_count//10)
                 snakes.pop(i)
                 nets.pop(i)
@@ -175,7 +203,7 @@ def main(genomes, config):
 
         # Give the outputs to the NN
         for i, snake in enumerate(snakes):
-            output = nets[i].activate(get_data(snake, apples[i]))
+            output = nets[i].activate(get_data(snake, apples[i], block_size))
             # if output[0] > 0.5:
             #     snake.straight()
             # elif output[1] > 0.5:
@@ -195,9 +223,9 @@ def main(genomes, config):
             HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
         if len(snakes) == 0:
             break
-        text = STAT_FONT.render(f'Highest Score:{HIGH_SCORE} ', 1, (255, 255, 0))
+        text = STAT_FONT.render(f'Highest Score:{HIGH_SCORE} ', 1, (255, 255, 255))
         screen.blit(text, (10, 10))
-        text = STAT_FONT.render(f'Living snakes:{len(snakes)} ', 1, (255, 255, 0))
+        text = STAT_FONT.render(f'Living snakes:{len(snakes)} ', 1, (255, 255, 255))
         screen.blit(text, (10, 50))
         pygame.display.update()
         clock.tick(60)
