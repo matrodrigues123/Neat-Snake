@@ -7,12 +7,12 @@ from pygame.locals import *
 from plot_results import plot_stats, plot_species
 from draw_net import draw_net
 
-os.environ["PATH"] += os.pathsep + 'C:\Program Files\Graphviz\bin'
 # pygame parameters
 pygame.init()
 WIN_X = 800
 WIN_Y = 800
 HIGH_SCORE = 0
+GEN = 0
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
 pygame.display.set_caption('Snake')
@@ -238,7 +238,7 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    winner = p.run(main, 5)
+    winner = p.run(main, 15)
 
     # draw_net(config, winner)
     plot_stats(stats, ylog=False, view=True)
