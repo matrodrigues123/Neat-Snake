@@ -5,6 +5,8 @@ import os
 from math import atan
 from pygame.locals import *
 
+
+# pygame parameters
 pygame.init()
 WIN_X = 800
 WIN_Y = 800
@@ -12,6 +14,13 @@ HIGH_SCORE = 0
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
 pygame.display.set_caption('Snake')
+
+# rgb colors
+BLUE1 = (0, 0, 255)
+BLUE2 = (0, 100, 255)
+RED1 = (219, 75, 59)
+RED2 = (252, 137, 121)
+GREEN = (162, 232, 58)
 
 
 class Snake:
@@ -100,6 +109,9 @@ def get_data(snake, apple):
         angle = atan((snake.head[0] - apple.x) / (snake.head[1] - apple.y))
     else:
         angle = 0
+
+    # [up, right, down, left]
+    danger = [0, 0, 0, 0]
     return (snake.head[0] - apple.x), (snake.head[1] - apple.y), angle
 
 
@@ -128,18 +140,21 @@ def main(genomes, config):
                 exit()
 
         screen.fill((0, 0, 0))
-        draw_grid(block_size)
+        # draw_grid(block_size)
 
         # Loop through snakes
         for i, snake in enumerate(snakes):
             # Draw snake's body
             for square in snake.body:
                 if square == snake.head:
-                    pygame.draw.rect(screen, (0, 255, 0), (square[0], square[1], block_size, block_size))
+                    pygame.draw.rect(screen, BLUE1, (square[0], square[1], block_size, block_size))
+                    pygame.draw.rect(screen, GREEN, (square[0] + 4, square[1] + 4, 30, 30))
                 else:
-                    pygame.draw.rect(screen, (255, 255, 0), (square[0], square[1], block_size, block_size))
+                    pygame.draw.rect(screen, BLUE1, (square[0], square[1], block_size, block_size))
+                    pygame.draw.rect(screen, BLUE2, (square[0] + 4, square[1] + 4, 30, 30))
             # Draw apple
-            pygame.draw.rect(screen, (255, 0, 0), (apples[i].x, apples[i].y, block_size, block_size))
+            pygame.draw.rect(screen, RED1, (apples[i].x, apples[i].y, block_size, block_size))
+            pygame.draw.rect(screen, RED2, (apples[i].x+4, apples[i].y+4, 30, 30))
 
             # Eat apple
             if snake.head == [apples[i].x, apples[i].y]:
@@ -148,12 +163,10 @@ def main(genomes, config):
                 apples[i] = Apple(block_size)
             else:
                 snake.body.pop(0)
-                if pygame.time.get_ticks() % 1000 == 0:
-                    ge[i].fitness -= 1
 
             # Collision
             if snake.collide() or snake.move_count >= 100:
-                ge[i].fitness -= 10
+                ge[i].fitness -= (10 + snake.move_count//10)
                 snakes.pop(i)
                 nets.pop(i)
                 ge.pop(i)
