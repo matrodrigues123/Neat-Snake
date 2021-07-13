@@ -22,5 +22,6 @@ The following graph shows the AI evolution through time, as its average fitness 
 
 ## How To Use
 You can just run it with Gitpod.
+
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/matrodrigues123/Neat-Snake/master/snake_game.py)
 
