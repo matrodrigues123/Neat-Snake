@@ -9,8 +9,8 @@ from plot_results import plot_stats, plot_species
 
 # pygame parameters
 pygame.init()
-WIN_X = 600
-WIN_Y = 600
+WIN_X = 800
+WIN_Y = 800
 HIGH_SCORE = 0
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
