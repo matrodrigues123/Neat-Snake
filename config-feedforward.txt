@@ -2,7 +2,7 @@
 fitness_criterion     = min
 fitness_threshold     = 200
 pop_size              = 1000
-reset_on_extinction   = False
+reset_on_extinction   = True
 
 [DefaultGenome]
 # node activation options

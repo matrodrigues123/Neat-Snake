@@ -7,7 +7,7 @@ from pygame.locals import *
 from plot_results import plot_stats, plot_species
 from draw_net import draw_net
 
-
+os.environ["PATH"] += os.pathsep + 'C:\Program Files\Graphviz\bin'
 # pygame parameters
 pygame.init()
 WIN_X = 800
@@ -238,11 +238,12 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    winner=p.run(main, 5)
+    winner = p.run(main, 5)
 
     # draw_net(config, winner)
     plot_stats(stats, ylog=False, view=True)
-    # plot_species(stats, view=True)
+    plot_species(stats, view=True)
+
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
