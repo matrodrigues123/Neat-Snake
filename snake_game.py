@@ -9,8 +9,8 @@ from draw_net import draw_net
 
 # pygame parameters
 pygame.init()
-WIN_X = 800
-WIN_Y = 800
+WIN_X = 600
+WIN_Y = 600
 HIGH_SCORE = 0
 STAT_FONT = pygame.font.SysFont('arial', 30)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
@@ -228,7 +228,7 @@ def main(genomes, config):
         text = STAT_FONT.render(f'Alive:{len(snakes)} ', 1, (255, 255, 255))
         screen.blit(text, (10, 50))
         pygame.display.update()
-        clock.tick(60)
+        clock.tick(20)
 
 
 def run(config_path):
@@ -237,7 +237,7 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    winner = p.run(main, 15)
+    winner = p.run(main, 25)
 
     # draw_net(config, winner)
     plot_stats(stats, ylog=False, view=True)
