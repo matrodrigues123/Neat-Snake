@@ -12,8 +12,7 @@ pygame.init()
 WIN_X = 800
 WIN_Y = 800
 HIGH_SCORE = 0
-GEN = 0
-STAT_FONT = pygame.font.SysFont('comicsans', 50)
+STAT_FONT = pygame.font.SysFont('arial', 30)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
 pygame.display.set_caption('Snake')
 
@@ -224,9 +223,9 @@ def main(genomes, config):
             HIGH_SCORE = max(HIGH_SCORE, len(snake.body) - 3)
         if len(snakes) == 0:
             break
-        text = STAT_FONT.render(f'Highest Score:{HIGH_SCORE} ', 1, (255, 255, 255))
+        text = STAT_FONT.render(f'Best Score:{HIGH_SCORE} ', 1, (255, 255, 255))
         screen.blit(text, (10, 10))
-        text = STAT_FONT.render(f'Living snakes:{len(snakes)} ', 1, (255, 255, 255))
+        text = STAT_FONT.render(f'Alive:{len(snakes)} ', 1, (255, 255, 255))
         screen.blit(text, (10, 50))
         pygame.display.update()
         clock.tick(60)
