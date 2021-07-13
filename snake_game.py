@@ -5,6 +5,7 @@ import os
 from math import atan
 from pygame.locals import *
 from plot_results import plot_stats, plot_species
+from draw_net import draw_net
 
 
 # pygame parameters
@@ -225,8 +226,9 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.run(main, 5)
+    winner=p.run(main, 5)
 
+    draw_net(config, winner)
     plot_stats(stats, ylog=False, view=True)
     # plot_species(stats, view=True)
 
