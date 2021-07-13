@@ -110,25 +110,37 @@ def get_data(snake, apple, block_size):
     else:
         angle = 0
 
-    # Check if there is danger in direction [left, right, up, down]
+    # Check if there is danger in direction [N, NE, E, SE, S, SW, W, NW]
     def check_danger(pos):
-        if pos in snake.body or not 0 <= pos <= WIN_X or not 0 <= pos < WIN_Y:
+        if pos in snake.body or not 0 <= pos[0] <= WIN_X or not 0 <= pos[1] < WIN_Y:
             return True
         else:
             return False
 
-    danger = [False, False, False, False]
-    left = snake.head[0] - block_size
-    danger[0] = check_danger(left)
+    danger = [False, False, False, False, False, False, False, False]
+    N = [snake.head[0], snake.head[1] - block_size]
+    danger[0] = check_danger(N)
 
-    right = snake.head[0] + block_size
-    danger[1] = check_danger(right)
+    NE = [snake.head[0] + block_size, snake.head[1] - block_size]
+    danger[1] = check_danger(NE)
 
-    up = snake.head[1] - block_size
-    danger[2] = check_danger(up)
+    E = [snake.head[0] + block_size, snake.head[1]]
+    danger[2] = check_danger(E)
 
-    down = snake.head[1] + block_size
-    danger[3] = check_danger(down)
+    SE = [snake.head[0] + block_size, snake.head[1] + block_size]
+    danger[3] = check_danger(SE)
+
+    S = [snake.head[0], snake.head[1] + block_size]
+    danger[4] = check_danger(S)
+
+    SW = [snake.head[0] - block_size, snake.head[1] + block_size]
+    danger[5] = check_danger(SW)
+
+    W = [snake.head[0] - block_size, snake.head[1]]
+    danger[6] = check_danger(W)
+
+    NW = [snake.head[0] - block_size, snake.head[1] - block_size]
+    danger[7] = check_danger(NW)
 
     return (snake.head[0] - apple.x, snake.head[1] - apple.y, angle) + tuple(danger)
 
@@ -228,7 +240,7 @@ def run(config_path):
     p.add_reporter(stats)
     winner=p.run(main, 5)
 
-    draw_net(config, winner)
+    # draw_net(config, winner)
     plot_stats(stats, ylog=False, view=True)
     # plot_species(stats, view=True)
 
