@@ -9,8 +9,8 @@ from plot_results import plot_stats, plot_species
 
 # pygame parameters
 pygame.init()
-WIN_X = 600
-WIN_Y = 600
+WIN_X = 800
+WIN_Y = 800
 HIGH_SCORE = 0
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
@@ -109,37 +109,25 @@ def get_data(snake, apple, block_size):
     else:
         angle = 0
 
-    # Check if there is danger in direction [up, right, down, left]
-    def is_danger(pos):
+    # Check if there is danger in direction [left, right, up, down]
+    def check_danger(pos):
         if pos in snake.body or not 0 <= pos <= WIN_X or not 0 <= pos < WIN_Y:
             return True
         else:
             return False
 
-    danger = [0, 0, 0, 0]
-    up = snake.head[1] - block_size
-    if is_danger(up):
-        danger[0] = 1
-    else:
-        danger[0] = 0
+    danger = [False, False, False, False]
+    left = snake.head[0] - block_size
+    danger[0] = check_danger(left)
 
     right = snake.head[0] + block_size
-    if is_danger(right):
-        danger[1] = 1
-    else:
-        danger[1] = 0
+    danger[1] = check_danger(right)
+
+    up = snake.head[1] - block_size
+    danger[2] = check_danger(up)
 
     down = snake.head[1] + block_size
-    if is_danger(down):
-        danger[2] = 1
-    else:
-        danger[2] = 0
-
-    left = snake.head[0] - block_size
-    if is_danger(left):
-        danger[3] = 1
-    else:
-        danger[3] = 0
+    danger[3] = check_danger(down)
 
     return (snake.head[0] - apple.x, snake.head[1] - apple.y, angle) + tuple(danger)
 
