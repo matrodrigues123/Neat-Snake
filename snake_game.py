@@ -237,7 +237,7 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.run(main, 5)
+    p.run(main, 50)
 
     plot_stats(stats, ylog=False, view=True)
     # plot_species(stats, view=True)
