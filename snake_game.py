@@ -4,12 +4,13 @@ import neat
 import os
 from math import atan
 from pygame.locals import *
+from plot_results import plot_stats, plot_species
 
 
 # pygame parameters
 pygame.init()
-WIN_X = 800
-WIN_Y = 800
+WIN_X = 600
+WIN_Y = 600
 HIGH_SCORE = 0
 STAT_FONT = pygame.font.SysFont('comicsans', 50)
 screen = pygame.display.set_mode((WIN_X, WIN_Y))
@@ -199,7 +200,7 @@ def main(genomes, config):
         text = STAT_FONT.render(f'Living snakes:{len(snakes)} ', 1, (255, 255, 0))
         screen.blit(text, (10, 50))
         pygame.display.update()
-        clock.tick(20)
+        clock.tick(60)
 
 
 def run(config_path):
@@ -208,8 +209,10 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    p.run(main, 50)
+    p.run(main, 5)
 
+    plot_stats(stats, ylog=False, view=True)
+    # plot_species(stats, view=True)
 
 if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
