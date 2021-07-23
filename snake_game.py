@@ -34,31 +34,6 @@ class Snake:
         self.head = [200, 200]
         self.body = [self.head, [190, 200], [180, 200]]
 
-    # def move(self):
-    #     if self.direction == 'right':
-    #         self.head[0] += self.speed
-    #     elif self.direction == 'left':
-    #         self.head[0] -= self.speed
-    #     elif self.direction == 'down':
-    #         self.head[1] += self.speed
-    #     elif self.direction == 'up':
-    #         self.head[1] -= self.speed
-    #
-    # def straight(self):
-    #     self.move()
-    #
-    # def right(self):
-    #     idx = self.clock_wise.index(self.direction)
-    #     new_idx = (idx + 1) % 4
-    #     self.direction = self.clock_wise[new_idx]
-    #     self.move()
-    #
-    # def left(self):
-    #     idx = self.clock_wise.index(self.direction)
-    #     new_idx = (idx - 1) % 4
-    #     self.direction = self.clock_wise[new_idx]
-    #     self.move()
-
     def left(self):
         self.head[0] -= self.speed
         self.direction = 'left'
@@ -204,12 +179,6 @@ def main(genomes, config):
         # Give the outputs to the NN
         for i, snake in enumerate(snakes):
             output = nets[i].activate(get_data(snake, apples[i], block_size))
-            # if output[0] > 0.5:
-            #     snake.straight()
-            # elif output[1] > 0.5:
-            #     snake.right()
-            # elif output[2] > 0.5:
-            #     snake.left()
             if output[0] > 0.5 and snake.direction != 'right':
                 snake.left()
             elif output[1] > 0.5 and snake.direction != 'left':
@@ -228,7 +197,7 @@ def main(genomes, config):
         text = STAT_FONT.render(f'Alive:{len(snakes)} ', 1, (255, 255, 255))
         screen.blit(text, (10, 50))
         pygame.display.update()
-        clock.tick(20)
+        clock.tick(60)
 
 
 def run(config_path):
@@ -237,7 +206,7 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
-    winner = p.run(main, 25)
+    winner = p.run(main, 10)
 
     # draw_net(config, winner)
     plot_stats(stats, ylog=False, view=True)
